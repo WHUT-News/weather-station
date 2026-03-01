@@ -1,9 +1,14 @@
 import { motion } from 'framer-motion';
 import { WeatherTile } from './WeatherTile';
-import type { CityWeatherState } from '@/hooks/useMultiCityWeather';
+
+export interface CityTile {
+  city: string;
+  imageUrl?: string;
+  isPreparing: boolean;
+}
 
 interface WeatherTileGridProps {
-  cities: CityWeatherState[];
+  cities: CityTile[];
   onCitySelect: (city: string) => void;
 }
 
@@ -60,11 +65,9 @@ export const WeatherTileGrid = ({
             <WeatherTile
               city={cityData.city}
               imageUrl={cityData.imageUrl}
-              isPreparing={cityData.status === 'preparing'}
-              isLoading={cityData.status === 'loading'}
+              isPreparing={cityData.isPreparing}
               onClick={() => {
-                // Don't allow selecting tiles that are still preparing
-                if (cityData.status !== 'preparing') {
+                if (!cityData.isPreparing) {
                   onCitySelect(cityData.city);
                 }
               }}

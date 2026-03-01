@@ -3,19 +3,15 @@ import { formatSubredditName } from '@/utils/formatters';
 
 interface NewsTileProps {
   subreddit: string;
-  title?: string;
   imageUrl?: string;
   isPreparing: boolean;
-  isLoading: boolean;
   onClick: () => void;
 }
 
 export const NewsTile = ({
   subreddit,
-  title,
   imageUrl,
   isPreparing,
-  isLoading,
   onClick,
 }: NewsTileProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -36,7 +32,7 @@ export const NewsTile = ({
                      : 'hover:scale-[1.02] active:scale-[0.98] cursor-pointer hover:shadow-xl'
                  }`}
     >
-      {hasImage && !isPreparing && !isLoading && (
+      {hasImage && !isPreparing && (
         <>
           <img
             src={imageUrl}
@@ -61,17 +57,10 @@ export const NewsTile = ({
           <h3 className="text-2xl md:text-3xl font-thin text-white drop-shadow-lg">
             {formatSubredditName(subreddit)}
           </h3>
-          {title && !isPreparing && !isLoading && (
-            <p className="mt-2 text-sm text-white/80 font-light line-clamp-2 max-w-[200px] mx-auto">
-              {title}
-            </p>
-          )}
-          {(isPreparing || isLoading) && (
+          {isPreparing && (
             <div className="mt-3 flex items-center justify-center gap-2">
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white" />
-              <span className="text-sm text-white/80 font-light">
-                {isPreparing ? 'Preparing...' : 'Loading...'}
-              </span>
+              <span className="text-sm text-white/80 font-light">Preparing...</span>
             </div>
           )}
         </div>

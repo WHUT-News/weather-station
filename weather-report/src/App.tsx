@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useEffect, useMemo } from 'react';
 import { Header } from '@/components/layout/Header';
@@ -14,11 +14,8 @@ import { useWeather } from '@/hooks/useWeather';
 import { useNews } from '@/hooks/useNews';
 import { useStats } from '@/hooks/useStats';
 import { useNewsStats } from '@/hooks/useNewsStats';
-import { useMultiCityWeather } from '@/hooks/useMultiCityWeather';
-import { useMultiSubredditNews } from '@/hooks/useMultiSubredditNews';
 import { useAppStore } from '@/store/appStore';
 import { config } from '@/utils/config';
-import { queryKeys } from '@/api/queryKeys';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,82 +30,57 @@ const queryClient = new QueryClient({
 });
 
 function WeatherContent() {
-  const queryClient = useQueryClient();
   const selectedCity = useAppStore((state) => state.selectedCity);
   const setSelectedCity = useAppStore((state) => state.setSelectedCity);
   const addUnavailableCity = useAppStore((state) => state.addUnavailableCity);
-  const markCityAsAvailable = useAppStore((state) => state.markCityAsAvailable);
-  const cityAvailability = useAppStore((state) => state.cityAvailability);
+  const clearPreparingCity = useAppStore((state) => state.clearPreparingCity);
   const unavailableCities = useAppStore((state) => state.unavailableCities);
-  const hiddenCities = useAppStore((state) => state.hiddenCities);
   const { data, isLoading, isError, error } = useWeather(selectedCity);
   const { data: statsData } = useStats();
 
-  // Build list of all cities for tile grid (from stats + preparing cities)
-  const allCities = useMemo(() => {
-    const statsCities = statsData?.statistics.cities_used
-      ? Object.keys(statsData.statistics.cities_used)
-      : [];
-    // Add unavailable cities that aren't already in stats
-    const preparingCities = unavailableCities.filter(
-      (city) => !statsCities.some((c) => c.toLowerCase() === city.toLowerCase())
+  // Build tile list: preparing cities first, then active cities from stats
+  const cityTiles = useMemo(() => {
+    const activeCities = Object.entries(statsData?.statistics.active_cities ?? {}).map(
+      ([city, detail]) => ({
+        city,
+        imageUrl: detail.image_url ?? undefined,
+        isPreparing: false,
+      })
     );
-    // Filter out hidden cities, with preparing cities first
-    return [...preparingCities, ...statsCities].filter(
-      (city) => !hiddenCities.some((hidden) => hidden.toLowerCase() === city.toLowerCase())
-    );
-  }, [statsData, unavailableCities, hiddenCities]);
+    const preparingTiles = unavailableCities
+      .filter((c) => !activeCities.some((a) => a.city.toLowerCase() === c.toLowerCase()))
+      .map((city) => ({ city, imageUrl: undefined, isPreparing: true }));
+    return [...preparingTiles, ...activeCities];
+  }, [statsData, unavailableCities]);
 
-  // Fetch weather data for all cities (for tile grid)
-  const { data: cityWeatherData } = useMultiCityWeather(allCities);
-
-  // Monitor stats and update all preparing cities when they become available
+  // When stats shows a preparing city is now active, clear its preparing state
   useEffect(() => {
     if (!statsData) return;
-
-    // Check all cities with "preparing" status
-    Object.entries(cityAvailability).forEach(([city, availability]) => {
-      if (availability.status !== 'preparing') return;
-
-      // Check if this city now has a forecast in the stats
-      const citiesUsed = statsData.statistics.cities_used || {};
-      const cityKey = Object.keys(citiesUsed).find(
+    const activeCities = statsData.statistics.active_cities ?? {};
+    unavailableCities.forEach((city) => {
+      const isNowActive = Object.keys(activeCities).some(
         (k) => k.toLowerCase() === city.toLowerCase()
       );
-
-      if (cityKey && citiesUsed[cityKey] > 0) {
-        // City is now available! Mark it and refetch the weather data if it's selected
-        markCityAsAvailable(city, new Date().toISOString());
-        if (selectedCity?.toLowerCase() === city.toLowerCase()) {
-          queryClient.invalidateQueries({ queryKey: queryKeys.weather.city(city) });
-        }
+      if (isNowActive) {
+        clearPreparingCity(city);
       }
     });
-  }, [statsData, cityAvailability, selectedCity, markCityAsAvailable, queryClient]);
+  }, [statsData, unavailableCities, clearPreparingCity]);
 
   // Mark city as unavailable when 404 occurs
   useEffect(() => {
     if (isError && selectedCity) {
       const errorMessage = (error as Error)?.message?.toLowerCase() || '';
-      const is404Error = errorMessage.includes('forecast not found');
-
-      if (is404Error) {
+      if (errorMessage.includes('forecast not found')) {
         addUnavailableCity(selectedCity);
       }
     }
   }, [isError, error, selectedCity, addUnavailableCity]);
 
-  // Mark city as available when forecast loads successfully
-  useEffect(() => {
-    if (data && selectedCity) {
-      markCityAsAvailable(selectedCity, data.forecast.forecast_at);
-    }
-  }, [data, selectedCity, markCityAsAvailable]);
-
   if (!selectedCity) {
     return (
       <WeatherTileGrid
-        cities={cityWeatherData}
+        cities={cityTiles}
         onCitySelect={setSelectedCity}
       />
     );
@@ -137,82 +109,59 @@ function WeatherContent() {
 }
 
 function NewsContent() {
-  const queryClient = useQueryClient();
   const selectedSubreddit = useAppStore((state) => state.selectedSubreddit);
   const setSelectedSubreddit = useAppStore((state) => state.setSelectedSubreddit);
   const addUnavailableSubreddit = useAppStore((state) => state.addUnavailableSubreddit);
-  const markSubredditAsAvailable = useAppStore((state) => state.markSubredditAsAvailable);
-  const subredditAvailability = useAppStore((state) => state.subredditAvailability);
+  const clearPreparingSubreddit = useAppStore((state) => state.clearPreparingSubreddit);
   const unavailableSubreddits = useAppStore((state) => state.unavailableSubreddits);
-  const hiddenSubreddits = useAppStore((state) => state.hiddenSubreddits);
   const { data, isLoading, isError, error } = useNews(selectedSubreddit);
   const { data: statsData } = useNewsStats();
 
-  // Build list of all subreddits for tile grid (from stats + preparing subreddits)
-  const allSubreddits = useMemo(() => {
-    const statsSubreddits = statsData?.statistics.categories_used
-      ? Object.keys(statsData.statistics.categories_used)
-      : [];
-    // Add unavailable subreddits that aren't already in stats
-    const preparingSubreddits = unavailableSubreddits.filter(
-      (subreddit) => !statsSubreddits.some((s) => s.toLowerCase() === subreddit.toLowerCase())
+  // Build tile list: preparing subreddits first, then active subreddits from stats
+  const subredditTiles = useMemo(() => {
+    const activeSubreddits = Object.entries(statsData?.statistics.active_categories ?? {}).map(
+      ([subreddit, detail]) => ({
+        subreddit,
+        imageUrl: detail.image_url ?? undefined,
+        isPreparing: false,
+      })
     );
-    // Filter out hidden subreddits, with preparing subreddits first
-    return [...preparingSubreddits, ...statsSubreddits].filter(
-      (subreddit) => !hiddenSubreddits.some((hidden) => hidden.toLowerCase() === subreddit.toLowerCase())
-    );
-  }, [statsData, unavailableSubreddits, hiddenSubreddits]);
+    const preparingTiles = unavailableSubreddits
+      .filter(
+        (s) => !activeSubreddits.some((a) => a.subreddit.toLowerCase() === s.toLowerCase())
+      )
+      .map((subreddit) => ({ subreddit, imageUrl: undefined, isPreparing: true }));
+    return [...preparingTiles, ...activeSubreddits];
+  }, [statsData, unavailableSubreddits]);
 
-  // Fetch news data for all subreddits (for tile grid)
-  const { data: subredditNewsData } = useMultiSubredditNews(allSubreddits);
-
-  // Monitor stats and update all preparing subreddits when they become available
+  // When stats shows a preparing subreddit is now active, clear its preparing state
   useEffect(() => {
     if (!statsData) return;
-
-    // Check all subreddits with "preparing" status
-    Object.entries(subredditAvailability).forEach(([subreddit, availability]) => {
-      if (availability.status !== 'preparing') return;
-
-      // Check if this subreddit now has news in the stats
-      const categoriesUsed = statsData.statistics.categories_used || {};
-      const subredditKey = Object.keys(categoriesUsed).find(
+    const activeCategories = statsData.statistics.active_categories ?? {};
+    unavailableSubreddits.forEach((subreddit) => {
+      const isNowActive = Object.keys(activeCategories).some(
         (k) => k.toLowerCase() === subreddit.toLowerCase()
       );
-
-      if (subredditKey && categoriesUsed[subredditKey] > 0) {
-        // Subreddit is now available! Mark it and refetch the news data if it's selected
-        markSubredditAsAvailable(subreddit, new Date().toISOString());
-        if (selectedSubreddit?.toLowerCase() === subreddit.toLowerCase()) {
-          queryClient.invalidateQueries({ queryKey: queryKeys.news.subreddit(subreddit) });
-        }
+      if (isNowActive) {
+        clearPreparingSubreddit(subreddit);
       }
     });
-  }, [statsData, subredditAvailability, selectedSubreddit, markSubredditAsAvailable, queryClient]);
+  }, [statsData, unavailableSubreddits, clearPreparingSubreddit]);
 
   // Mark subreddit as unavailable when 404 occurs
   useEffect(() => {
     if (isError && selectedSubreddit) {
       const errorMessage = (error as Error)?.message?.toLowerCase() || '';
-      const is404Error = errorMessage.includes('news not found');
-
-      if (is404Error) {
+      if (errorMessage.includes('news not found')) {
         addUnavailableSubreddit(selectedSubreddit);
       }
     }
   }, [isError, error, selectedSubreddit, addUnavailableSubreddit]);
 
-  // Mark subreddit as available when news loads successfully
-  useEffect(() => {
-    if (data && selectedSubreddit) {
-      markSubredditAsAvailable(selectedSubreddit, data.news.published_at);
-    }
-  }, [data, selectedSubreddit, markSubredditAsAvailable]);
-
   if (!selectedSubreddit) {
     return (
       <NewsTileGrid
-        subreddits={subredditNewsData}
+        subreddits={subredditTiles}
         onSubredditSelect={setSelectedSubreddit}
       />
     );

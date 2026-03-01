@@ -13,14 +13,13 @@ import {
 import { MagnifyingGlassIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useStats } from '@/hooks/useStats';
 import { useAppStore } from '@/store/appStore';
-import { formatCityName, formatShortTimestamp } from '@/utils/formatters';
+import { formatCityName } from '@/utils/formatters';
 import Fuse from 'fuse.js';
 import './CitySearch.css';
 
 export const CitySearch = () => {
   const { data: statsData } = useStats();
-  const { selectedCity, setSelectedCity, unavailableCities, hiddenCities, getCityStatus, removeCity } =
-    useAppStore();
+  const { selectedCity, setSelectedCity, unavailableCities, removeCity } = useAppStore();
   const [query, setQuery] = useState('');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -32,7 +31,7 @@ export const CitySearch = () => {
   const availableCities = [
     ...allCities,
     ...unavailableCities.filter((city) => !allCities.some((c) => c.toLowerCase() === city.toLowerCase())),
-  ].filter((city) => !hiddenCities.some((hidden) => hidden.toLowerCase() === city.toLowerCase()));
+  ];
 
   // Configure fuzzy search with Fuse.js
   const fuse = useMemo(
@@ -102,15 +101,8 @@ export const CitySearch = () => {
 
   // Get status label for a city
   const getCityStatusLabel = (city: string): string | null => {
-    const status = getCityStatus(city);
-    if (!status) return null;
-
-    if (status.status === 'preparing') {
-      return 'Being Prepared';
-    } else if (status.status === 'available' && status.timestamp) {
-      return formatShortTimestamp(status.timestamp);
-    }
-    return null;
+    const isPreparing = unavailableCities.some((c) => c.toLowerCase() === city.toLowerCase());
+    return isPreparing ? 'Being Prepared' : null;
   };
 
   // Shared options rendering component
@@ -118,7 +110,7 @@ export const CitySearch = () => {
     filteredCities.length > 0 &&
       filteredCities.map((city) => {
         const statusLabel = getCityStatusLabel(city);
-        const hasStatus = getCityStatus(city) !== null;
+        const hasStatus = true;
         return (
           <ComboboxOption
             key={city}

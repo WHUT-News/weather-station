@@ -5,7 +5,6 @@ interface WeatherTileProps {
   city: string;
   imageUrl?: string;
   isPreparing: boolean;
-  isLoading: boolean;
   onClick: () => void;
 }
 
@@ -13,7 +12,6 @@ export const WeatherTile = ({
   city,
   imageUrl,
   isPreparing,
-  isLoading,
   onClick,
 }: WeatherTileProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -34,7 +32,7 @@ export const WeatherTile = ({
                      : 'hover:scale-[1.02] active:scale-[0.98] cursor-pointer hover:shadow-xl'
                  }`}
     >
-      {hasImage && !isPreparing && !isLoading && (
+      {hasImage && !isPreparing && (
         <>
           <img
             src={imageUrl}
@@ -59,12 +57,10 @@ export const WeatherTile = ({
           <h3 className="text-2xl md:text-3xl font-thin text-white drop-shadow-lg">
             {formatCityName(city)}
           </h3>
-          {(isPreparing || isLoading) && (
+          {isPreparing && (
             <div className="mt-3 flex items-center justify-center gap-2">
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white" />
-              <span className="text-sm text-white/80 font-light">
-                {isPreparing ? 'Preparing...' : 'Loading...'}
-              </span>
+              <span className="text-sm text-white/80 font-light">Preparing...</span>
             </div>
           )}
         </div>

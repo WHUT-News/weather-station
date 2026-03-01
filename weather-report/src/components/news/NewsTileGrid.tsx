@@ -1,9 +1,14 @@
 import { motion } from 'framer-motion';
 import { NewsTile } from './NewsTile';
-import type { SubredditNewsState } from '@/hooks/useMultiSubredditNews';
+
+export interface SubredditTile {
+  subreddit: string;
+  imageUrl?: string;
+  isPreparing: boolean;
+}
 
 interface NewsTileGridProps {
-  subreddits: SubredditNewsState[];
+  subreddits: SubredditTile[];
   onSubredditSelect: (subreddit: string) => void;
 }
 
@@ -59,13 +64,10 @@ export const NewsTileGrid = ({
           <motion.div key={subredditData.subreddit} variants={itemVariants}>
             <NewsTile
               subreddit={subredditData.subreddit}
-              title={subredditData.title}
               imageUrl={subredditData.imageUrl}
-              isPreparing={subredditData.status === 'preparing'}
-              isLoading={subredditData.status === 'loading'}
+              isPreparing={subredditData.isPreparing}
               onClick={() => {
-                // Don't allow selecting tiles that are still preparing
-                if (subredditData.status !== 'preparing') {
+                if (!subredditData.isPreparing) {
                   onSubredditSelect(subredditData.subreddit);
                 }
               }}

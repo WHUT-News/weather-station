@@ -4,7 +4,7 @@ import { MagnifyingGlassIcon, XMarkIcon, ClockIcon } from '@heroicons/react/24/o
 import Fuse from 'fuse.js';
 import { useAppStore } from '@/store/appStore';
 import { useNewsStats } from '@/hooks/useNewsStats';
-import { formatSubredditName, formatShortTimestamp } from '@/utils/formatters';
+import { formatSubredditName } from '@/utils/formatters';
 
 interface SubredditSearchProps {
   onSelect: (subreddit: string | null) => void;
@@ -13,7 +13,6 @@ interface SubredditSearchProps {
 interface SubredditOption {
   name: string;
   status: 'available' | 'preparing';
-  timestamp?: string;
 }
 
 export const SubredditSearch = ({ onSelect }: SubredditSearchProps) => {
@@ -21,9 +20,7 @@ export const SubredditSearch = ({ onSelect }: SubredditSearchProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { data: statsData } = useNewsStats();
   const selectedSubreddit = useAppStore((state) => state.selectedSubreddit);
-  const subredditAvailability = useAppStore((state) => state.subredditAvailability);
   const unavailableSubreddits = useAppStore((state) => state.unavailableSubreddits);
-  const hiddenSubreddits = useAppStore((state) => state.hiddenSubreddits);
   const removeSubreddit = useAppStore((state) => state.removeSubreddit);
 
   // Build list of all subreddits with their status
@@ -37,24 +34,13 @@ export const SubredditSearch = ({ onSelect }: SubredditSearchProps) => {
       (s) => !statsSubreddits.some((stat) => stat.toLowerCase() === s.toLowerCase())
     );
 
-    const combined = [...preparingSubreddits, ...statsSubreddits];
-
-    // Filter out hidden subreddits and map to options
-    return combined
-      .filter((s) => !hiddenSubreddits.some((hidden) => hidden.toLowerCase() === s.toLowerCase()))
-      .map((name) => {
-        const availabilityKey = Object.keys(subredditAvailability).find(
-          (k) => k.toLowerCase() === name.toLowerCase()
-        );
-        const availability = availabilityKey ? subredditAvailability[availabilityKey] : null;
-
-        return {
-          name,
-          status: availability?.status || 'available',
-          timestamp: availability?.timestamp,
-        };
-      });
-  }, [statsData, unavailableSubreddits, hiddenSubreddits, subredditAvailability]);
+    return [...preparingSubreddits, ...statsSubreddits].map((name) => ({
+      name,
+      status: unavailableSubreddits.some((s) => s.toLowerCase() === name.toLowerCase())
+        ? 'preparing'
+        : 'available',
+    }));
+  }, [statsData, unavailableSubreddits]);
 
   // Fuzzy search
   const fuse = useMemo(
@@ -147,11 +133,6 @@ export const SubredditSearch = ({ onSelect }: SubredditSearchProps) => {
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    {subreddit.timestamp && subreddit.status === 'available' && (
-                      <span className="text-xs text-apple-gray">
-                        {formatShortTimestamp(subreddit.timestamp)}
-                      </span>
-                    )}
                     <button
                       onPointerDown={(e) => handleDelete(e, subreddit.name)}
                       onMouseDown={(e) => handleDelete(e, subreddit.name)}

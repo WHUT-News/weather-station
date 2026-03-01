@@ -61,6 +61,10 @@ export interface StatsResponse {
   statistics: StorageStatistics;
 }
 
+export interface CityDetail {
+  image_url?: string | null;
+}
+
 export interface StorageStatistics {
   total_forecasts: number;
   total_text_bytes: number;
@@ -69,6 +73,7 @@ export interface StorageStatistics {
   forecasts_with_images: number;
   languages_used: Record<string, number>;
   cities_used: Record<string, number>;
+  active_cities: Record<string, CityDetail>;
 }
 
 export interface HealthResponse {
@@ -173,6 +178,10 @@ export interface NewsStatsResponse {
   statistics: NewsStatistics;
 }
 
+export interface CategoryDetail {
+  image_url?: string | null;
+}
+
 export interface NewsStatistics {
   total_reports: number;
   total_text_bytes: number;
@@ -185,4 +194,5 @@ export interface NewsStatistics {
   categories_used: Record<string, number>;
   sources_used: Record<string, number>;
   languages_used: Record<string, number>;
+  active_categories: Record<string, CategoryDetail>;
 }
