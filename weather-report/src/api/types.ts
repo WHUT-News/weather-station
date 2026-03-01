@@ -7,20 +7,33 @@ export interface WeatherResponse {
 }
 
 export interface ForecastData {
-  text: string;
-  audio_base64: string;
-  picture_url?: string;
+  id: string;
+  city: string;
+  content: string;
   forecast_at: string;
+  created_at: string;
   expires_at: string;
+  is_expired: boolean;
   age_seconds: number;
+  audio_url: string | null;
+  audio_format: string | null;
+  audio_size_bytes: number | null;
+  image_url: string | null;
+  image_format: string | null;
+  image_size_bytes: number | null;
   metadata: ForecastMetadata;
+  record_metadata?: Record<string, unknown>;
 }
 
 export interface ForecastMetadata {
   encoding: string;
   language: string | null;
   locale: string | null;
-  sizes: Record<string, number>;
+  sizes: {
+    text?: number;
+    audio?: number;
+    image?: number;
+  };
 }
 
 export interface HistoryResponse {
@@ -31,15 +44,16 @@ export interface HistoryResponse {
 }
 
 export interface HistoricalForecast {
-  forecast_id: string;
+  id: string;
+  city: string;
   forecast_at: string;
-  expires_at: string;
-  expired: boolean;
-  encoding: string;
-  language: string | null;
-  locale: string | null;
-  sizes: Record<string, number>;
   created_at: string;
+  expires_at: string;
+  is_expired: boolean;
+  text_language: string | null;
+  text_size_bytes: number | null;
+  has_audio: boolean;
+  has_image: boolean;
 }
 
 export interface StatsResponse {
@@ -51,17 +65,10 @@ export interface StorageStatistics {
   total_forecasts: number;
   total_text_bytes: number;
   total_audio_bytes: number;
-  encodings_used: Record<string, number>;
+  total_image_bytes: number;
+  forecasts_with_images: number;
   languages_used: Record<string, number>;
-  city_breakdown: CityStatistics[];
-}
-
-export interface CityStatistics {
-  city: string;
-  forecast_count: number;
-  total_text_bytes: number;
-  total_audio_bytes: number;
-  latest_forecast: string | null;
+  cities_used: Record<string, number>;
 }
 
 export interface HealthResponse {
@@ -73,10 +80,11 @@ export interface HealthResponse {
 
 export interface DatabaseHealth {
   connected: boolean;
-  instance: string | null;
+  supabase_url: string | null;
   database: string | null;
   version: string | null;
-  forecasts_table_exists: boolean | null;
+  table_exists: boolean | null;
+  record_count: number | null;
   error: string | null;
 }
 

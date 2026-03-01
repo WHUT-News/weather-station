@@ -59,7 +59,7 @@ export const WeatherTileGrid = ({
           <motion.div key={cityData.city} variants={itemVariants}>
             <WeatherTile
               city={cityData.city}
-              pictureUrl={cityData.pictureUrl}
+              imageUrl={cityData.imageUrl}
               isPreparing={cityData.status === 'preparing'}
               isLoading={cityData.status === 'loading'}
               onClick={() => {

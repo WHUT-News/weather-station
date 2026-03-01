@@ -46,7 +46,9 @@ function WeatherContent() {
 
   // Build list of all cities for tile grid (from stats + preparing cities)
   const allCities = useMemo(() => {
-    const statsCities = statsData?.statistics.city_breakdown.map((c) => c.city) || [];
+    const statsCities = statsData?.statistics.cities_used
+      ? Object.keys(statsData.statistics.cities_used)
+      : [];
     // Add unavailable cities that aren't already in stats
     const preparingCities = unavailableCities.filter(
       (city) => !statsCities.some((c) => c.toLowerCase() === city.toLowerCase())
@@ -69,13 +71,14 @@ function WeatherContent() {
       if (availability.status !== 'preparing') return;
 
       // Check if this city now has a forecast in the stats
-      const cityStats = statsData.statistics.city_breakdown.find(
-        (c) => c.city.toLowerCase() === city.toLowerCase()
+      const citiesUsed = statsData.statistics.cities_used || {};
+      const cityKey = Object.keys(citiesUsed).find(
+        (k) => k.toLowerCase() === city.toLowerCase()
       );
 
-      if (cityStats?.latest_forecast) {
+      if (cityKey && citiesUsed[cityKey] > 0) {
         // City is now available! Mark it and refetch the weather data if it's selected
-        markCityAsAvailable(city, cityStats.latest_forecast);
+        markCityAsAvailable(city, new Date().toISOString());
         if (selectedCity?.toLowerCase() === city.toLowerCase()) {
           queryClient.invalidateQueries({ queryKey: queryKeys.weather.city(city) });
         }
@@ -125,7 +128,7 @@ function WeatherContent() {
 
   return (
     <>
-      <WeatherHero city={data.city} picture_url={data.forecast.picture_url} />
+      <WeatherHero city={data.city} imageUrl={data.forecast.image_url ?? undefined} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <ForecastCard forecast={data.forecast} city={data.city} />
       </div>

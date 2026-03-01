@@ -6,7 +6,7 @@ import { useAppStore } from '@/store/appStore';
 
 export interface CityWeatherState {
   city: string;
-  pictureUrl?: string;
+  imageUrl?: string;
   status: 'available' | 'preparing' | 'loading';
 }
 
@@ -56,7 +56,7 @@ export const useMultiCityWeather = (cities: string[]): {
     if (query.data) {
       return {
         city,
-        pictureUrl: query.data.forecast.picture_url,
+        imageUrl: query.data.forecast.image_url ?? undefined,
         status: 'available',
       };
     }

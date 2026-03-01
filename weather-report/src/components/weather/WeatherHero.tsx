@@ -3,19 +3,19 @@ import { formatCityName } from '@/utils/formatters';
 
 interface WeatherHeroProps {
   city: string;
-  picture_url?: string;
+  imageUrl?: string;
 }
 
-export const WeatherHero = ({ city, picture_url }: WeatherHeroProps) => {
+export const WeatherHero = ({ city, imageUrl }: WeatherHeroProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
-  const hasImage = !!picture_url?.trim();
+  const hasImage = !!imageUrl?.trim();
 
   return (
     <div className="relative min-h-[32vh] flex items-center justify-center bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 dark:from-blue-900 dark:via-purple-900 dark:to-pink-900">
       {hasImage && (
         <>
           <img
-            src={picture_url}
+            src={imageUrl}
             alt=""
             className="hidden"
             onLoad={() => setImageLoaded(true)}
@@ -24,7 +24,7 @@ export const WeatherHero = ({ city, picture_url }: WeatherHeroProps) => {
             className={`absolute inset-0 bg-cover bg-center transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
-            style={{ backgroundImage: `url(${picture_url})` }}
+            style={{ backgroundImage: `url(${imageUrl})` }}
           />
         </>
       )}

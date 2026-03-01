@@ -3,7 +3,7 @@ import { formatCityName } from '@/utils/formatters';
 
 interface WeatherTileProps {
   city: string;
-  pictureUrl?: string;
+  imageUrl?: string;
   isPreparing: boolean;
   isLoading: boolean;
   onClick: () => void;
@@ -11,13 +11,13 @@ interface WeatherTileProps {
 
 export const WeatherTile = ({
   city,
-  pictureUrl,
+  imageUrl,
   isPreparing,
   isLoading,
   onClick,
 }: WeatherTileProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
-  const hasImage = !!pictureUrl?.trim();
+  const hasImage = !!imageUrl?.trim();
 
   return (
     <button
@@ -37,7 +37,7 @@ export const WeatherTile = ({
       {hasImage && !isPreparing && !isLoading && (
         <>
           <img
-            src={pictureUrl}
+            src={imageUrl}
             alt=""
             className="hidden"
             onLoad={() => setImageLoaded(true)}
@@ -46,7 +46,7 @@ export const WeatherTile = ({
             className={`absolute inset-0 bg-cover bg-center transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
-            style={{ backgroundImage: `url(${pictureUrl})` }}
+            style={{ backgroundImage: `url(${imageUrl})` }}
           />
         </>
       )}

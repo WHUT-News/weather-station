@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import type { ForecastData } from '@/api/types';
-import { AudioPlayer } from './AudioPlayer';
+import { UrlAudioPlayer } from '@/components/news/UrlAudioPlayer';
 import { TranscriptDisplay } from './TranscriptDisplay';
 import { ForecastAgeBadge } from './ForecastAgeBadge';
 import { formatBytes, formatCityName } from '@/utils/formatters';
@@ -11,7 +11,7 @@ interface ForecastCardProps {
 }
 
 export const ForecastCard = ({ forecast, city }: ForecastCardProps) => {
-  const audioSize = forecast.metadata.sizes.audio_base64 || 0;
+  const audioSize = forecast.metadata.sizes.audio || 0;
 
   return (
     <motion.div
@@ -30,12 +30,14 @@ export const ForecastCard = ({ forecast, city }: ForecastCardProps) => {
         </div>
 
         {/* Audio Player */}
-        <div className="border-t border-b border-gray-200 dark:border-gray-700 py-6">
-          <AudioPlayer audioBase64={forecast.audio_base64} />
-        </div>
+        {forecast.audio_url && (
+          <div className="border-t border-b border-gray-200 dark:border-gray-700 py-6">
+            <UrlAudioPlayer audioUrl={forecast.audio_url} />
+          </div>
+        )}
 
         {/* Transcript */}
-        <TranscriptDisplay text={forecast.text} />
+        <TranscriptDisplay text={forecast.content} />
 
         {/* Metadata */}
         <div className="flex flex-wrap gap-4 text-xs text-apple-gray pt-4 border-t border-gray-200 dark:border-gray-700">
