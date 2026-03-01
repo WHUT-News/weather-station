@@ -729,7 +729,7 @@ gcloud run services describe weather-api \
     --format 'value(status.url)'
 
 # Use this URL in your frontend VITE_WEATHER_API_BASE_URL
-# Or configure VITE_FORECAST_API_HOST and VITE_FORECAST_API_PORT for local development
+# Or configure VITE_WEATHER_API_HOST and VITE_WEATHER_API_PORT for local development
 ```
 
 ### Option B: Cloud Functions (for simple APIs)

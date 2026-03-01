@@ -5,8 +5,8 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const apiHost = env.VITE_FORECAST_API_HOST || 'localhost'
-  const apiPort = env.VITE_FORECAST_API_PORT || '8200'
+  const apiHost = env.VITE_WEATHER_API_HOST || 'localhost'
+  const apiPort = env.VITE_WEATHER_API_PORT || '8200'
   const apiTarget = `http://${apiHost}:${apiPort}`
 
   return {
