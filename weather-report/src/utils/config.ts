@@ -65,4 +65,8 @@ export const config = {
     import.meta.env.VITE_REPORT_RETRY_DELAY,
     120 // 2 minutes default (in seconds)
   ),
+
+  /** Feature flags — tabs are enabled unless explicitly set to 'false' */
+  enableWeatherTab: import.meta.env.VITE_ENABLE_WEATHER_TAB !== 'false',
+  enableNewsTab: import.meta.env.VITE_ENABLE_NEWS_TAB !== 'false',
 } as const;

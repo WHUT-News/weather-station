@@ -29,6 +29,8 @@ docker build \
     --build-arg VITE_DEFAULT_CITY="New York" \
     --build-arg VITE_REPORT_CACHE_DURATION=600 \
     --build-arg VITE_REPORT_RETRY_DELAY=120 \
+    --build-arg VITE_ENABLE_WEATHER_TAB=true \
+    --build-arg VITE_ENABLE_NEWS_TAB=false \
     -t "$IMAGE_PATH" \
     .
 

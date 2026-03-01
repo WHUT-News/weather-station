@@ -18,13 +18,17 @@ ARG VITE_NEWS_API_BASE_URL
 ARG VITE_DEFAULT_CITY=New York
 ARG VITE_REPORT_CACHE_DURATION=600
 ARG VITE_REPORT_RETRY_DELAY=120
+ARG VITE_ENABLE_WEATHER_TAB=true
+ARG VITE_ENABLE_NEWS_TAB=true
 
 # Create .env file
 RUN echo "VITE_WEATHER_API_BASE_URL=${VITE_WEATHER_API_BASE_URL}" > .env.production && \
     echo "VITE_NEWS_API_BASE_URL=${VITE_NEWS_API_BASE_URL}" >> .env.production && \
     echo "VITE_DEFAULT_CITY=${VITE_DEFAULT_CITY}" >> .env.production && \
     echo "VITE_REPORT_CACHE_DURATION=${VITE_REPORT_CACHE_DURATION}" >> .env.production && \
-    echo "VITE_REPORT_RETRY_DELAY=${VITE_REPORT_RETRY_DELAY}" >> .env.production
+    echo "VITE_REPORT_RETRY_DELAY=${VITE_REPORT_RETRY_DELAY}" >> .env.production && \
+    echo "VITE_ENABLE_WEATHER_TAB=${VITE_ENABLE_WEATHER_TAB}" >> .env.production && \
+    echo "VITE_ENABLE_NEWS_TAB=${VITE_ENABLE_NEWS_TAB}" >> .env.production
 
 # Build application
 RUN npm run build

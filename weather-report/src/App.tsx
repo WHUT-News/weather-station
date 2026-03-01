@@ -195,6 +195,24 @@ function NewsContent() {
 
 function App() {
   const activeTab = useAppStore((state) => state.activeTab);
+  const setActiveTab = useAppStore((state) => state.setActiveTab);
+
+  // If the persisted active tab is now disabled, fall back to the first enabled tab
+  useEffect(() => {
+    const isEnabled =
+      (activeTab === 'weather' && config.enableWeatherTab) ||
+      (activeTab === 'news' && config.enableNewsTab);
+    if (!isEnabled) {
+      if (config.enableWeatherTab) setActiveTab('weather');
+      else if (config.enableNewsTab) setActiveTab('news');
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Determine which content to render (guarded against disabled tabs)
+  const effectiveTab =
+    (activeTab === 'weather' && config.enableWeatherTab) ? 'weather' :
+    (activeTab === 'news' && config.enableNewsTab) ? 'news' :
+    config.enableWeatherTab ? 'weather' : 'news';
 
   return (
     <ErrorBoundary
@@ -208,7 +226,7 @@ function App() {
         <div className="min-h-screen bg-apple-light dark:bg-black">
           <Header />
           <main>
-            {activeTab === 'weather' ? <WeatherContent /> : <NewsContent />}
+            {effectiveTab === 'weather' ? <WeatherContent /> : <NewsContent />}
           </main>
         </div>
       </QueryClientProvider>

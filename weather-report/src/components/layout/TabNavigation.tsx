@@ -1,14 +1,20 @@
 import { CloudIcon, NewspaperIcon } from '@heroicons/react/24/outline';
 import { useAppStore, type ActiveTab } from '@/store/appStore';
+import { config } from '@/utils/config';
 
 export const TabNavigation = () => {
   const activeTab = useAppStore((state) => state.activeTab);
   const setActiveTab = useAppStore((state) => state.setActiveTab);
 
-  const tabs: { id: ActiveTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: 'weather', label: 'Weather', icon: CloudIcon },
-    { id: 'news', label: 'News', icon: NewspaperIcon },
+  const allTabs: { id: ActiveTab; label: string; icon: React.ComponentType<{ className?: string }>; enabled: boolean }[] = [
+    { id: 'weather', label: 'Weather', icon: CloudIcon, enabled: config.enableWeatherTab },
+    { id: 'news', label: 'News', icon: NewspaperIcon, enabled: config.enableNewsTab },
   ];
+
+  const tabs = allTabs.filter((tab) => tab.enabled);
+
+  // Hide the nav entirely when there is only one tab
+  if (tabs.length <= 1) return null;
 
   return (
     <div className="flex items-center gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
