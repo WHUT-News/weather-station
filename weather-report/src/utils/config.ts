@@ -15,36 +15,54 @@ const parseSeconds = (value: string | undefined, defaultSeconds: number): number
 };
 
 /**
- * Build Forecast API base URL from host and port environment variables
+ * Build Weather API base URL from host and port environment variables
  */
 const getApiBaseUrl = (): string => {
   // First try the full URL if provided
-  if (import.meta.env.VITE_FORECAST_API_BASE_URL) {
-    return import.meta.env.VITE_FORECAST_API_BASE_URL;
+  if (import.meta.env.VITE_WEATHER_API_BASE_URL) {
+    return import.meta.env.VITE_WEATHER_API_BASE_URL;
   }
 
   // Otherwise construct from host and port
-  const apiHost = import.meta.env.VITE_FORECAST_API_HOST || 'localhost';
-  const apiPort = import.meta.env.VITE_FORECAST_API_PORT || '8200';
+  const apiHost = import.meta.env.VITE_WEATHER_API_HOST || 'localhost';
+  const apiPort = import.meta.env.VITE_WEATHER_API_PORT || '8200';
+  return `http://${apiHost}:${apiPort}`;
+};
+
+/**
+ * Build News API base URL from host and port environment variables
+ */
+const getNewsApiBaseUrl = (): string => {
+  // First try the full URL if provided
+  if (import.meta.env.VITE_NEWS_API_BASE_URL) {
+    return import.meta.env.VITE_NEWS_API_BASE_URL;
+  }
+
+  // Otherwise construct from host and port
+  const apiHost = import.meta.env.VITE_NEWS_API_HOST || 'localhost';
+  const apiPort = import.meta.env.VITE_NEWS_API_PORT || '8300';
   return `http://${apiHost}:${apiPort}`;
 };
 
 export const config = {
-  /** API base URL */
+  /** Weather API base URL */
   apiBaseUrl: getApiBaseUrl(),
+
+  /** News API base URL */
+  newsApiBaseUrl: getNewsApiBaseUrl(),
 
   /** Default city to select */
   defaultCity: import.meta.env.VITE_DEFAULT_CITY || 'Seattle',
 
   /** Cache duration in milliseconds (how long data stays fresh) */
   cacheDuration: parseSeconds(
-    import.meta.env.VITE_FORECAST_CACHE_DURATION,
+    import.meta.env.VITE_REPORT_CACHE_DURATION,
     120 // 2 minutes default (in seconds)
   ),
 
   /** Retry delay in milliseconds (how long to wait before retrying) */
   retryDelay: parseSeconds(
-    import.meta.env.VITE_FORECAST_RETRY_DELAY,
+    import.meta.env.VITE_REPORT_RETRY_DELAY,
     120 // 2 minutes default (in seconds)
   ),
 } as const;

@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
-import { WeatherTile } from './WeatherTile';
-import type { CityWeatherState } from '@/hooks/useMultiCityWeather';
+import { NewsTile } from './NewsTile';
+import type { SubredditNewsState } from '@/hooks/useMultiSubredditNews';
 
-interface WeatherTileGridProps {
-  cities: CityWeatherState[];
-  onCitySelect: (city: string) => void;
+interface NewsTileGridProps {
+  subreddits: SubredditNewsState[];
+  onSubredditSelect: (subreddit: string) => void;
 }
 
 const containerVariants = {
@@ -28,19 +28,19 @@ const itemVariants = {
   },
 };
 
-export const WeatherTileGrid = ({
-  cities,
-  onCitySelect,
-}: WeatherTileGridProps) => {
-  if (cities.length === 0) {
+export const NewsTileGrid = ({
+  subreddits,
+  onSubredditSelect,
+}: NewsTileGridProps) => {
+  if (subreddits.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center space-y-4">
           <h2 className="text-3xl font-light text-apple-dark dark:text-apple-light">
-            Welcome to WHUT Weather Service
+            Welcome to WHUT News Services
           </h2>
           <p className="text-apple-gray">
-            Search for a city to view the latest weather report
+            Search for a subreddit to view the latest news report
           </p>
         </div>
       </div>
@@ -55,17 +55,18 @@ export const WeatherTileGrid = ({
         initial="hidden"
         animate="visible"
       >
-        {cities.map((cityData) => (
-          <motion.div key={cityData.city} variants={itemVariants}>
-            <WeatherTile
-              city={cityData.city}
-              imageUrl={cityData.imageUrl}
-              isPreparing={cityData.status === 'preparing'}
-              isLoading={cityData.status === 'loading'}
+        {subreddits.map((subredditData) => (
+          <motion.div key={subredditData.subreddit} variants={itemVariants}>
+            <NewsTile
+              subreddit={subredditData.subreddit}
+              title={subredditData.title}
+              imageUrl={subredditData.imageUrl}
+              isPreparing={subredditData.status === 'preparing'}
+              isLoading={subredditData.status === 'loading'}
               onClick={() => {
                 // Don't allow selecting tiles that are still preparing
-                if (cityData.status !== 'preparing') {
-                  onCitySelect(cityData.city);
+                if (subredditData.status !== 'preparing') {
+                  onSubredditSelect(subredditData.subreddit);
                 }
               }}
             />

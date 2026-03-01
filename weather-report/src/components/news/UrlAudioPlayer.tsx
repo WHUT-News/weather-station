@@ -1,16 +1,15 @@
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid';
-import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { useUrlAudioPlayer } from '@/hooks/useUrlAudioPlayer';
 import { formatDuration } from '@/utils/formatters';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
-import './AudioPlayer.css';
 
-interface AudioPlayerProps {
-  audioBase64: string;
+interface UrlAudioPlayerProps {
+  audioUrl: string;
 }
 
-export const AudioPlayer = ({ audioBase64 }: AudioPlayerProps) => {
+export const UrlAudioPlayer = ({ audioUrl }: UrlAudioPlayerProps) => {
   const { isPlaying, currentTime, duration, isLoading, toggle, seek } =
-    useAudioPlayer(audioBase64);
+    useUrlAudioPlayer(audioUrl);
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -47,8 +46,8 @@ export const AudioPlayer = ({ audioBase64 }: AudioPlayerProps) => {
           onClick={handleProgressClick}
         >
           <div
-            className="audio-progress-fill"
-            style={{ '--progress-width': `${(currentTime / duration) * 100}%` } as React.CSSProperties}
+            className="h-full bg-apple-blue dark:bg-apple-darkblue transition-all duration-100"
+            style={{ width: `${(currentTime / duration) * 100}%` }}
           />
         </div>
 

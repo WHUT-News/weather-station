@@ -1,17 +1,17 @@
 import { motion } from 'framer-motion';
-import type { ForecastData } from '@/api/types';
-import { UrlAudioPlayer } from '@/components/news/UrlAudioPlayer';
-import { TranscriptDisplay } from './TranscriptDisplay';
-import { ForecastAgeBadge } from './ForecastAgeBadge';
-import { formatBytes, formatCityName } from '@/utils/formatters';
+import type { NewsData } from '@/api/types';
+import { UrlAudioPlayer } from './UrlAudioPlayer';
+import { ContentDisplay } from './ContentDisplay';
+import { NewsAgeBadge } from './NewsAgeBadge';
+import { formatBytes, formatSubredditName } from '@/utils/formatters';
 
-interface ForecastCardProps {
-  forecast: ForecastData;
-  city: string;
+interface NewsCardProps {
+  news: NewsData;
+  subreddit: string;
 }
 
-export const ForecastCard = ({ forecast, city }: ForecastCardProps) => {
-  const audioSize = forecast.metadata.sizes.audio || 0;
+export const NewsCard = ({ news, subreddit }: NewsCardProps) => {
+  const audioSize = news.metadata.sizes.audio || 0;
 
   return (
     <motion.div
@@ -24,39 +24,49 @@ export const ForecastCard = ({ forecast, city }: ForecastCardProps) => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold tracking-tight text-apple-dark dark:text-apple-light">
-            {formatCityName(city)}
+            {formatSubredditName(subreddit)}
           </h2>
-          <ForecastAgeBadge forecastAt={forecast.forecast_at} />
+          <NewsAgeBadge publishedAt={news.published_at} />
         </div>
 
         {/* Audio Player */}
-        {forecast.audio_url && (
+        {news.audio_url && (
           <div className="border-t border-b border-gray-200 dark:border-gray-700 py-6">
-            <UrlAudioPlayer audioUrl={forecast.audio_url} />
+            <UrlAudioPlayer audioUrl={news.audio_url} />
           </div>
         )}
 
-        {/* Transcript */}
-        <TranscriptDisplay text={forecast.content} />
+        {/* Content */}
+        <ContentDisplay text={news.content} title="News Report" />
 
         {/* Metadata */}
         <div className="flex flex-wrap gap-4 text-xs text-apple-gray pt-4 border-t border-gray-200 dark:border-gray-700">
-          {forecast.metadata.language && (
+          {news.source && (
             <div>
-              <span className="font-medium">Language:</span>{' '}
-              {forecast.metadata.language.toUpperCase()}
+              <span className="font-medium">Source:</span> {news.source}
             </div>
           )}
-          {forecast.metadata.encoding && (
+          {news.metadata.language && (
+            <div>
+              <span className="font-medium">Language:</span>{' '}
+              {news.metadata.language.toUpperCase()}
+            </div>
+          )}
+          {news.metadata.encoding && (
             <div>
               <span className="font-medium">Encoding:</span>{' '}
-              {forecast.metadata.encoding}
+              {news.metadata.encoding}
             </div>
           )}
           {audioSize > 0 && (
             <div>
               <span className="font-medium">Audio Size:</span>{' '}
               {formatBytes(audioSize)}
+            </div>
+          )}
+          {news.tags && news.tags.length > 0 && (
+            <div>
+              <span className="font-medium">Tags:</span> {news.tags.join(', ')}
             </div>
           )}
         </div>

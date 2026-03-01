@@ -25,8 +25,9 @@ export const CitySearch = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   // Include all cities from stats, plus unavailable cities that are being prepared
-  const allCities =
-    statsData?.statistics.city_breakdown.map((c) => c.city) || [];
+  const allCities = statsData?.statistics.cities_used
+    ? Object.keys(statsData.statistics.cities_used)
+    : [];
 
   const availableCities = [
     ...allCities,

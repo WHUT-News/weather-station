@@ -1,17 +1,18 @@
 import { useState } from 'react';
-import { formatCityName } from '@/utils/formatters';
+import { formatSubredditName } from '@/utils/formatters';
 
-interface WeatherHeroProps {
-  city: string;
+interface NewsHeroProps {
+  subreddit: string;
+  title?: string;
   imageUrl?: string;
 }
 
-export const WeatherHero = ({ city, imageUrl }: WeatherHeroProps) => {
+export const NewsHero = ({ subreddit, imageUrl }: NewsHeroProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const hasImage = !!imageUrl?.trim();
 
   return (
-    <div className="relative min-h-[32vh] flex items-center justify-center bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 dark:from-blue-900 dark:via-purple-900 dark:to-pink-900">
+    <div className="relative min-h-[32vh] flex items-center justify-center bg-gradient-to-br from-orange-500 via-red-500 to-rose-500 dark:from-orange-900 dark:via-red-900 dark:to-rose-900">
       {hasImage && (
         <>
           <img
@@ -28,12 +29,14 @@ export const WeatherHero = ({ city, imageUrl }: WeatherHeroProps) => {
           />
         </>
       )}
-      <div className="text-center relative z-10">
+      {/* Overlay for better text readability */}
+      <div className="absolute inset-0 bg-black/20" />
+      <div className="text-center relative z-10 px-4">
         <h1 className="text-6xl md:text-8xl font-thin tracking-tight text-white drop-shadow-lg">
-          {formatCityName(city)}
+          {formatSubredditName(subreddit)}
         </h1>
         <p className="mt-4 text-xl md:text-2xl font-light text-white/90">
-          Latest Weather Report
+          Latest News Report
         </p>
       </div>
     </div>
